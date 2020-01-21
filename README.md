@@ -10,7 +10,7 @@ Please note, that this is intended to provide the basic idea. Adaptations might 
 
 When an alert comes in a user can acknowledge it in the Enterprise Alert app. After that he or she can go into the alert and then to Remote Action and click the Alert2Text Remote Action.
 
-[!App Remote Action](app-alert2team.png)
+[App Remote Action](app-alert2team.png)
 
 ## Setup
 
