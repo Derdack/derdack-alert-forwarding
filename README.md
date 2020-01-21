@@ -37,7 +37,7 @@ sExecuter: This is the executer of the remote action. You need to insert the Exe
 sTeam: This is the team the alert is forwarded to.  
 sComment: This is an optional comment you can add to the forwarded alert.  
 
-![Alert2Team Action](alert2team-app.png)
+![Alert2Team Action](alert2team-action.png)
 
 4. Test It
 Now you can create an alert policy and set the above Remote Action as Recommended Remote Action. When you receibe an alert you can acknowledge it in the Enterprise Alert app and then use the Remote Action Alert2Team for forwaring the alert to another team.
