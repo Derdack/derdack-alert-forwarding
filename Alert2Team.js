@@ -7,6 +7,7 @@ The alert will be the one, which was used to trigger this Remote Action from.
 For further support contact us at support@de.derdack.com
 
 v1.0.0 (12.02.2019, Frank Gutacker)
+v1.1.0 (17.03.2020, Frank Gutacker, Change attachment handling)
 
 Copyright 2019 Derdack GmbH, www.derdack.com, Enterprise Alert is a registered trademark of Derdack GmbH
 */
@@ -24,9 +25,13 @@ function Alert2Team(sExecutor, sTeam, sComment) {
 		
 		fillTeams();
 				
-		var oRes = oDbConn.Execute("SELECT TOP 1 AlertID FROM AlertTimelines JOIN RemoteJobsHistory ON (AlertTimelines.ReferenceID=RemoteJobsHistory.ID) WHERE AlertTimelines.ReferenceType=9 AND RemoteJobsHistory.ProfileName='" + sExecutor + "' ORDER BY AlertTimelines.ID DESC");
-		var sTicketId = oRes.Fields.Item('AlertID').Value;
+		var oRes = oDbConn.Execute("SELECT TOP 1 AlertID, MimeType, CAST(ContentBinary AS VARBINARY(MAX)) AS ContentBinary, Path FROM AlertTimelines JOIN RemoteJobsHistory ON AlertTimelines.ReferenceID=RemoteJobsHistory.ID LEFT JOIN FileContentReferences ON AlertTimelines.AlertID=FileContentReferences.ReferenceID LEFT JOIN FileContents ON FileContentReferences.AttachmentID=FileContents.ID WHERE AlertTimelines.ReferenceType=9 AND RemoteJobsHistory.ProfileName='" + sExecutor + "' ORDER BY AlertTimelines.ID DESC");
 		
+		var sTicketId 		= oRes.Fields.Item('AlertID').Value;
+		var sMimeType 		= oRes.Fields.Item('MimeType').Value;
+		var sContentBinary 	= oRes.Fields.Item('ContentBinary').Value;
+		var sFile 			= oRes.Fields.Item('Path').Value;
+		var sPath 			= EAScriptHost.GetScriptsDirectory() + "..\\..\\Attachments\\" + sFile;
 		oDbConn.Close();
 		
 		var oTicket;
@@ -40,12 +45,10 @@ function Alert2Team(sExecutor, sTeam, sComment) {
 		oNewTicket.setProperty("serviceFrom", oTicket.GetProperty("serviceFrom"));
 		oNewTicket.setProperty("serviceTo", oTicket.GetProperty("serviceTo"));
 		oNewTicket.setProperty("priority", oTicket.GetProperty("priority"));
-		var iAttCount = oTicket.GetNumberOfAttachments();
-		for (var i = 0; i < iAttCount; i++) {
-			oNewTicket.AddAttachment(oTicket.GetAttachment(i));
+		if (sFile && sFile != "null") {
+			oNewTicket.AddAttachmentFiles(sPath);
 		}
 		
-		// EAScriptHost.LogDebug(oNewTicket.GetXML());
 		oNewTicket.Send();
 		
 		RAContext.SetExecutionResult(RAContext.ExecutionOK, "Completed", 0);
